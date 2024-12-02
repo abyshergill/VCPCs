@@ -30,12 +30,10 @@ class VideoCaptureThread(QThread):
 class WebcamApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Microscope Picture Capture | Beta ABY")
-        #self.setGeometry(100, 100, 200, 700)  # Adjust the main window size if needed
+        self.setWindowTitle("Free Picture Capture Script by ABY at https://github.com/abyshergill/VCPCs")
 
         self.layout = QGridLayout()
 
-        # Font customization
         title_font = QFont("Arial", 16)
         button_font = QFont("Arial", 12)
 
@@ -72,8 +70,7 @@ class WebcamApp(QWidget):
         
         # Video Label
         self.video_label = QLabel()
-       # self.video_label.setFixedSize(1000, 1000)  # Increase the size as needed
-        self.layout.addWidget(self.video_label, 2, 0, 1, 3)  # Span across columns 0 to 2 in row 2
+        self.layout.addWidget(self.video_label, 2, 0, 1, 3)  
         
         self.setLayout(self.layout)
 
@@ -101,28 +98,21 @@ class WebcamApp(QWidget):
             self.capture_thread.start()
     
     def update_frame(self, frame, width=1890, height=850):
-        # Update the displayed frame with the latest captured frame
-        self.last_frame = frame  # Store the last frame for later use
-        
-        # Resize the frame to the desired width and height
-        frame = cv2.resize(frame, (width, height))  # This line resizes the frame
+        self.last_frame = frame  
+        frame = cv2.resize(frame, (width, height))  
         
         # Convert the frame from BGR (OpenCV format) to RGB (Qt format)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        h, w, ch = frame.shape  # Get the height, width, and channels of the frame
-        bytes_per_line = ch * w  # Calculate the number of bytes per line for the QImage
-        
-        # Create a QImage from the frame data
+        h, w, ch = frame.shape  
+        bytes_per_line = ch * w  
         q_img = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
-        
-        # Set the QPixmap for the video label to display the frame
+       
         self.video_label.setPixmap(QPixmap.fromImage(q_img))
 
     def capture_image(self):
         self.capture_thread.stop()
         if self.last_frame is not None:
-            # Save the image in BGR format since OpenCV saves images in BGR
             file_path, _ = QFileDialog.getSaveFileName(self, "Save Image", "", "Images (*.png *.jpg *.jpeg)")
             if file_path:
                 cv2.imwrite(file_path, self.last_frame)
